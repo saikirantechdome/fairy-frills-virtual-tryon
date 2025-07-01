@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -23,7 +23,7 @@ export const ImageUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Create preview URL when file is uploaded
-  useState(() => {
+  useEffect(() => {
     if (uploadedFile) {
       const url = URL.createObjectURL(uploadedFile);
       setPreviewUrl(url);
