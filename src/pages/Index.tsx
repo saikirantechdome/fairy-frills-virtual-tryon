@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ImageUpload } from '../components/ImageUpload';
 import { OutfitSelector } from '../components/OutfitSelector';
 import { ResultDisplay } from '../components/ResultDisplay';
 import { TryOnButton } from '../components/TryOnButton';
+import { supabaseService, TryOnSession } from '../services/supabaseService';
 
 const Index = () => {
   const [modelImage, setModelImage] = useState<File | null>(null);
@@ -12,6 +13,31 @@ const Index = () => {
   const [selectedDress, setSelectedDress] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
+  const [currentSession, setCurrentSession] = useState<TryOnSession | null>(null);
+
+  // Subscribe to session updates
+  useEffect(() => {
+    if (!currentSession) return;
+
+    const unsubscribe = supabaseService.subscribeToSession(
+      currentSession.id,
+      (updatedSession) => {
+        console.log('Session updated:', updatedSession);
+        setCurrentSession(updatedSession);
+        
+        if (updatedSession.status === 'completed' && updatedSession.result_image_url) {
+          setResultImage(updatedSession.result_image_url);
+          setIsProcessing(false);
+          toast.success('Virtual try-on completed!');
+        } else if (updatedSession.status === 'failed') {
+          setIsProcessing(false);
+          toast.error('Try-on processing failed. Please try again.');
+        }
+      }
+    );
+
+    return unsubscribe;
+  }, [currentSession]);
 
   const handleModelUpload = (file: File) => {
     setModelImage(file);
@@ -43,26 +69,50 @@ const Index = () => {
 
     setIsProcessing(true);
     setResultImage(null);
+    setCurrentSession(null);
     
     try {
-      // For now, we'll simulate the process
-      // In a real implementation, this would send to n8n webhook
       console.log('Starting virtual try-on process...');
-      console.log('Model image:', modelImage);
-      console.log('Dress image:', dressImage || selectedDress);
       
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Upload model image
+      const modelImagePath = `model-images/${Date.now()}-${modelImage.name}`;
+      const modelImageUrl = await supabaseService.uploadImage(modelImage, modelImagePath);
       
-      // For demo purposes, we'll show a placeholder result
-      setResultImage('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&q=80');
+      // Upload dress image or use selected URL
+      let dressImageUrl = selectedDress;
+      if (dressImage) {
+        const dressImagePath = `dress-images/${Date.now()}-${dressImage.name}`;
+        dressImageUrl = await supabaseService.uploadImage(dressImage, dressImagePath);
+      }
       
-      toast.success('Virtual try-on completed!');
+      if (!dressImageUrl) {
+        throw new Error('No dress image available');
+      }
+      
+      // Create session in database
+      const session = await supabaseService.createSession(modelImageUrl, dressImageUrl);
+      setCurrentSession(session);
+      
+      console.log('Session created:', session);
+      toast.success('Images uploaded! Processing your try-on...');
+      
+      // TODO: Here you would typically trigger your AI processing workflow
+      // For now, we'll simulate with a timeout and update the session
+      setTimeout(async () => {
+        try {
+          // For demo purposes, we'll use a placeholder result
+          const resultUrl = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&q=80';
+          await supabaseService.updateSession(session.id, resultUrl, 'completed');
+        } catch (error) {
+          console.error('Failed to update session:', error);
+          await supabaseService.updateSession(session.id, '', 'failed');
+        }
+      }, 3000);
+      
     } catch (error) {
       console.error('Try-on failed:', error);
-      toast.error('Something went wrong. Please try again.');
-    } finally {
       setIsProcessing(false);
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
