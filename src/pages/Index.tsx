@@ -96,18 +96,8 @@ const Index = () => {
       console.log('Session created:', session);
       toast.success('Images uploaded! Processing your try-on...');
       
-      // TODO: Here you would typically trigger your AI processing workflow
-      // For now, we'll simulate with a timeout and update the session
-      setTimeout(async () => {
-        try {
-          // For demo purposes, we'll use a placeholder result
-          const resultUrl = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&q=80';
-          await supabaseService.updateSession(session.id, resultUrl, 'completed');
-        } catch (error) {
-          console.error('Failed to update session:', error);
-          await supabaseService.updateSession(session.id, '', 'failed');
-        }
-      }, 3000);
+      // The n8n AI workflow will process the images and update the session
+      // No more hardcoded timeout - waiting for real AI results
       
     } catch (error) {
       console.error('Try-on failed:', error);

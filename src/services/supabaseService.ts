@@ -51,7 +51,7 @@ export const supabaseService = {
       throw new Error(`Failed to create session: ${error.message}`);
     }
 
-    return data;
+    return data as TryOnSession;
   },
 
   // Update session with result
