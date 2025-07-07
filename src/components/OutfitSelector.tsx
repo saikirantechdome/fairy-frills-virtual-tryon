@@ -10,33 +10,48 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
   const sampleOutfits = [
     {
       id: 'dress-1',
-      url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=400&q=80',
-      name: 'Elegant Black Dress'
+      url: '/lovable-uploads/53ec6ccd-1666-4f47-a500-a2a9d6082d5a.png',
+      name: 'Purple Sparkle Dress'
     },
     {
       id: 'dress-2',
-      url: 'https://images.unsplash.com/photo-1566479179817-28e1f7ac4dce?auto=format&fit=crop&w=400&q=80',
-      name: 'Summer Floral Dress'
+      url: '/lovable-uploads/9d4d1447-18a8-4911-ab2d-35243d3ed1cb.png',
+      name: 'Rose Floral Dress'
     },
     {
       id: 'dress-3',
-      url: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&q=80',
-      name: 'Casual Blue Shirt'
+      url: '/lovable-uploads/abeeb785-687b-4e7a-9ab5-b09044db0915.png',
+      name: 'Pink Bow Dress'
     },
     {
       id: 'dress-4',
-      url: 'https://images.unsplash.com/photo-1567171434019-84cbf69a26cf?auto=format&fit=crop&w=400&q=80',
-      name: 'Cozy Sweater'
+      url: '/lovable-uploads/b862e418-a382-4396-a235-a3e699069f57.png',
+      name: 'Pink Ruffle Dress'
     },
     {
       id: 'dress-5',
-      url: 'https://images.unsplash.com/photo-1520429055906-87037b7d0ba9?auto=format&fit=crop&w=400&q=80',
-      name: 'Red Evening Dress'
+      url: '/lovable-uploads/ad6ef091-a448-4523-8d8e-6b99a01e3959.png',
+      name: 'White Tulle Dress'
     },
     {
       id: 'dress-6',
-      url: 'https://images.unsplash.com/photo-1533827432537-70133748f5c8?auto=format&fit=crop&w=400&q=80',
-      name: 'White Casual Top'
+      url: '/lovable-uploads/10683506-034a-4b85-8573-f6c5ce75726b.png',
+      name: 'Peach Flower Dress'
+    },
+    {
+      id: 'dress-7',
+      url: '/lovable-uploads/d989ce6e-985e-419a-9de8-242b68d01613.png',
+      name: 'Black Sparkle Dress'
+    },
+    {
+      id: 'dress-8',
+      url: '/lovable-uploads/e2a68b90-0c22-487b-8ad9-b67d5b265161.png',
+      name: 'Blue Princess Dress'
+    },
+    {
+      id: 'dress-9',
+      url: '/lovable-uploads/25f1e6e3-09f4-4a7e-91fb-23d5c7c7681f.png',
+      name: 'Yellow Rose Dress'
     }
   ];
 
@@ -49,8 +64,8 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
           className={cn(
             'relative cursor-pointer rounded-lg overflow-hidden group transition-all duration-200',
             selectedDress === outfit.url
-              ? 'ring-2 ring-purple-500 ring-offset-2'
-              : 'hover:ring-2 hover:ring-purple-300 hover:ring-offset-1'
+              ? 'ring-2 ring-[#E799AA] ring-offset-2'
+              : 'hover:ring-2 hover:ring-[#E799AA]/50 hover:ring-offset-1'
           )}
         >
           <div className="aspect-[3/4] overflow-hidden">
@@ -72,7 +87,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
           
           {/* Selected indicator */}
           {selectedDress === outfit.url && (
-            <div className="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+            <div className="absolute top-2 right-2 w-5 h-5 bg-[#E799AA] rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
           )}
