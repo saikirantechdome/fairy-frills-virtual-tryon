@@ -18,6 +18,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
       try {
         setIsLoading(true);
         const options = await dressService.getDressOptions();
+        console.log('Loaded dress options from database:', options);
         setDressOptions(options);
       } catch (error) {
         console.error('Failed to load dress options:', error);
@@ -72,7 +73,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
               alt={dress.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               onError={(e) => {
-                console.error('Failed to load dress image:', dress.image_url);
+                console.error('Failed to load dress image from Google Drive:', dress.image_url);
                 // Fallback to a placeholder or hide the image
                 e.currentTarget.style.display = 'none';
               }}
