@@ -1,5 +1,8 @@
 
+import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { dressService, DressOption } from '../services/dressService';
+import { toast } from 'sonner';
 
 interface OutfitSelectorProps {
   onSelect: (dressUrl: string) => void;
@@ -7,72 +10,72 @@ interface OutfitSelectorProps {
 }
 
 export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps) => {
-  const sampleOutfits = [
-    {
-      id: 'dress-1',
-      url: '/lovable-uploads/53ec6ccd-1666-4f47-a500-a2a9d6082d5a.png',
-      name: 'Purple Sparkle Dress'
-    },
-    {
-      id: 'dress-2',
-      url: '/lovable-uploads/9d4d1447-18a8-4911-ab2d-35243d3ed1cb.png',
-      name: 'Rose Floral Dress'
-    },
-    {
-      id: 'dress-3',
-      url: '/lovable-uploads/abeeb785-687b-4e7a-9ab5-b09044db0915.png',
-      name: 'Pink Bow Dress'
-    },
-    {
-      id: 'dress-4',
-      url: '/lovable-uploads/b862e418-a382-4396-a235-a3e699069f57.png',
-      name: 'Pink Ruffle Dress'
-    },
-    {
-      id: 'dress-5',
-      url: '/lovable-uploads/ad6ef091-a448-4523-8d8e-6b99a01e3959.png',
-      name: 'White Tulle Dress'
-    },
-    {
-      id: 'dress-6',
-      url: '/lovable-uploads/10683506-034a-4b85-8573-f6c5ce75726b.png',
-      name: 'Peach Flower Dress'
-    },
-    {
-      id: 'dress-7',
-      url: '/lovable-uploads/d989ce6e-985e-419a-9de8-242b68d01613.png',
-      name: 'Black Sparkle Dress'
-    },
-    {
-      id: 'dress-8',
-      url: '/lovable-uploads/e2a68b90-0c22-487b-8ad9-b67d5b265161.png',
-      name: 'Blue Princess Dress'
-    },
-    {
-      id: 'dress-9',
-      url: '/lovable-uploads/25f1e6e3-09f4-4a7e-91fb-23d5c7c7681f.png',
-      name: 'Yellow Rose Dress'
-    }
-  ];
+  const [dressOptions, setDressOptions] = useState<DressOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDressOptions = async () => {
+      try {
+        setIsLoading(true);
+        const options = await dressService.getDressOptions();
+        setDressOptions(options);
+      } catch (error) {
+        console.error('Failed to load dress options:', error);
+        toast.error('Failed to load dress options');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDressOptions();
+  }, []);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {[...Array(9)].map((_, index) => (
+          <div
+            key={index}
+            className="aspect-[3/4] bg-gray-200 rounded-lg animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Show message if no dress options available
+  if (dressOptions.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No dress options available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      {sampleOutfits.map((outfit) => (
+      {dressOptions.map((dress) => (
         <div
-          key={outfit.id}
-          onClick={() => onSelect(outfit.url)}
+          key={dress.id}
+          onClick={() => onSelect(dress.image_url)}
           className={cn(
             'relative cursor-pointer rounded-lg overflow-hidden group transition-all duration-200',
-            selectedDress === outfit.url
+            selectedDress === dress.image_url
               ? 'ring-2 ring-[#E799AA] ring-offset-2'
               : 'hover:ring-2 hover:ring-[#E799AA]/50 hover:ring-offset-1'
           )}
         >
           <div className="aspect-[3/4] overflow-hidden">
             <img
-              src={outfit.url}
-              alt={outfit.name}
+              src={dress.image_url}
+              alt={dress.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              onError={(e) => {
+                console.error('Failed to load dress image:', dress.image_url);
+                // Fallback to a placeholder or hide the image
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
           
@@ -80,13 +83,13 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <div className="absolute bottom-2 left-2 right-2">
               <p className="text-white text-xs font-medium truncate">
-                {outfit.name}
+                {dress.name}
               </p>
             </div>
           </div>
           
           {/* Selected indicator */}
-          {selectedDress === outfit.url && (
+          {selectedDress === dress.image_url && (
             <div className="absolute top-2 right-2 w-5 h-5 bg-[#E799AA] rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>

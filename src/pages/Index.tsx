@@ -5,6 +5,7 @@ import { ImageUpload } from '../components/ImageUpload';
 import { OutfitSelector } from '../components/OutfitSelector';
 import { ResultDisplay } from '../components/ResultDisplay';
 import { TryOnButton } from '../components/TryOnButton';
+import { DressImageUploader } from '../components/DressImageUploader';
 import { supabaseService, TryOnSession } from '../services/supabaseService';
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<TryOnSession | null>(null);
+  const [showUploader, setShowUploader] = useState(false);
 
   // Subscribe to session updates
   useEffect(() => {
@@ -37,6 +39,13 @@ const Index = () => {
 
     return unsubscribe;
   }, [currentSession]);
+
+  // Show uploader button for initial setup (can be removed later)
+  useEffect(() => {
+    // Show uploader button if we're in development mode or if there's a special query param
+    const urlParams = new URLSearchParams(window.location.search);
+    setShowUploader(urlParams.get('setup') === 'true' || process.env.NODE_ENV === 'development');
+  }, []);
 
   const handleModelUpload = (file: File) => {
     setModelImage(file);
@@ -70,7 +79,7 @@ const Index = () => {
       const modelImagePath = `model-images/${Date.now()}-${modelImage.name}`;
       const modelImageUrl = await supabaseService.uploadImage(modelImage, modelImagePath);
       
-      // Use selected dress URL directly
+      // Use selected dress URL directly (now it's already a Supabase URL)
       const dressImageUrl = selectedDress;
       
       // Create session in database
@@ -81,7 +90,6 @@ const Index = () => {
       toast.success('Images uploaded! Processing your try-on...');
       
       // The n8n AI workflow will process the images and update the session
-      // No more hardcoded timeout - waiting for real AI results
       
     } catch (error) {
       console.error('Try-on failed:', error);
@@ -154,6 +162,9 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* One-time setup utility - can be removed after initial setup */}
+      {showUploader && <DressImageUploader />}
     </div>
   );
 };

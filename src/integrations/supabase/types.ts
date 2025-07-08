@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      dress_options: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tryon_sessions: {
         Row: {
           created_at: string
