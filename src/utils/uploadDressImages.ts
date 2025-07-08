@@ -1,108 +1,87 @@
 
-// Utility script to upload dress images to Supabase
-// This will be used to populate the database with actual image URLs
+import { dressService } from '../services/dressService';
 
-import { supabase } from '@/integrations/supabase/client';
-
-const dressImages = [
+// Mapping of dress names to their corresponding uploaded image paths
+const dressImageMappings = [
   {
-    id: 1,
     name: 'Purple Sparkle Dress',
-    fileName: '53ec6ccd-1666-4f47-a500-a2a9d6082d5a.png'
+    imagePath: '/lovable-uploads/15cde8fc-66cc-4549-8fa6-cafe1c1d6968.png'
   },
   {
-    id: 2,
-    name: 'Rose Floral Dress',
-    fileName: '9d4d1447-18a8-4911-ab2d-35243d3ed1cb.png'
+    name: 'Rose Floral Dress', 
+    imagePath: '/lovable-uploads/af95916a-f7f9-402b-8118-08c89b9263b2.png'
   },
   {
-    id: 3,
     name: 'Pink Bow Dress',
-    fileName: 'abeeb785-687b-4e7a-9ab5-b09044db0915.png'
+    imagePath: '/lovable-uploads/5cdd24d5-1633-40e7-99ce-3c382d9a1024.png'
   },
   {
-    id: 4,
     name: 'Pink Ruffle Dress',
-    fileName: 'b862e418-a382-4396-a235-a3e699069f57.png'
+    imagePath: '/lovable-uploads/4807d879-ca98-44d7-8d28-128a4ad011a6.png'
   },
   {
-    id: 5,
     name: 'White Tulle Dress',
-    fileName: 'ad6ef091-a448-4523-8d8e-6b99a01e3959.png'
+    imagePath: '/lovable-uploads/d4148529-54e6-4477-a708-3e9980de944b.png'
   },
   {
-    id: 6,
     name: 'Peach Flower Dress',
-    fileName: '10683506-034a-4b85-8573-f6c5ce75726b.png'
+    imagePath: '/lovable-uploads/9580a538-2c00-499d-b2c3-2849454ed4f9.png'
   },
   {
-    id: 7,
     name: 'Black Sparkle Dress',
-    fileName: 'd989ce6e-985e-419a-9de8-242b68d01613.png'
+    imagePath: '/lovable-uploads/1a77594f-0da2-42c9-9578-41db60e8d795.png'
   },
   {
-    id: 8,
     name: 'Blue Princess Dress',
-    fileName: 'e2a68b90-0c22-487b-8ad9-b67d5b265161.png'
-  },
-  {
-    id: 9,
-    name: 'Yellow Rose Dress',
-    fileName: '25f1e6e3-09f4-4a7e-91fb-23d5c7c7681f.png'
+    imagePath: '/lovable-uploads/1fae24a0-e45a-4102-951f-5c0613bb72ce.png'
   }
 ];
 
-export const uploadDressImagesToSupabase = async () => {
-  console.log('Starting dress images upload to Supabase...');
-  
-  for (const dress of dressImages) {
-    try {
-      // Fetch the image from the public folder
-      const response = await fetch(`/lovable-uploads/${dress.fileName}`);
-      if (!response.ok) {
-        console.error(`Failed to fetch ${dress.fileName}`);
-        continue;
-      }
+// Convert local image path to File object
+async function pathToFile(imagePath: string, fileName: string): Promise<File> {
+  const response = await fetch(imagePath);
+  const blob = await response.blob();
+  return new File([blob], fileName, { type: blob.type });
+}
+
+export async function uploadAllDressImages(): Promise<void> {
+  try {
+    console.log('Starting to upload dress images to Supabase...');
+    
+    // Get current dress options from database
+    const dressOptions = await dressService.getDressOptions();
+    
+    for (const dressOption of dressOptions) {
+      // Find matching image for this dress
+      const imageMapping = dressImageMappings.find(
+        mapping => mapping.name === dressOption.name
+      );
       
-      const blob = await response.blob();
-      const file = new File([blob], dress.fileName, { type: 'image/png' });
-      
-      // Upload to Supabase storage
-      const filePath = `dress-options/${dress.fileName}`;
-      const { data, error: uploadError } = await supabase.storage
-        .from('tryon-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true // Allow overwrite if exists
-        });
-
-      if (uploadError) {
-        console.error(`Upload error for ${dress.name}:`, uploadError);
-        continue;
+      if (imageMapping) {
+        console.log(`Uploading ${dressOption.name}...`);
+        
+        try {
+          // Convert image path to File object
+          const file = await pathToFile(imageMapping.imagePath, `${dressOption.name}.png`);
+          
+          // Upload to Supabase storage
+          const publicUrl = await dressService.uploadDressImage(file, dressOption.id);
+          
+          // Update database with new public URL
+          await dressService.updateDressImageUrl(dressOption.id, publicUrl);
+          
+          console.log(`Successfully uploaded ${dressOption.name} - URL: ${publicUrl}`);
+        } catch (error) {
+          console.error(`Failed to upload ${dressOption.name}:`, error);
+        }
+      } else {
+        console.warn(`No image mapping found for ${dressOption.name}`);
       }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('tryon-images')
-        .getPublicUrl(data.path);
-
-      // Update database with actual URL
-      const { error: updateError } = await supabase
-        .from('dress_options')
-        .update({ image_url: publicUrl })
-        .eq('name', dress.name);
-
-      if (updateError) {
-        console.error(`Database update error for ${dress.name}:`, updateError);
-        continue;
-      }
-
-      console.log(`Successfully uploaded and updated ${dress.name}`);
-      
-    } catch (error) {
-      console.error(`Error processing ${dress.name}:`, error);
     }
+    
+    console.log('Finished uploading dress images to Supabase');
+  } catch (error) {
+    console.error('Error uploading dress images:', error);
+    throw error;
   }
-  
-  console.log('Dress images upload completed!');
-};
+}
