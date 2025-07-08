@@ -18,7 +18,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
       try {
         setIsLoading(true);
         const options = await dressService.getDressOptions();
-        console.log('Loaded dress options from database:', options);
+        console.log('Loaded dress options:', options);
         setDressOptions(options);
       } catch (error) {
         console.error('Failed to load dress options:', error);
@@ -35,7 +35,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {[...Array(9)].map((_, index) => (
+        {[...Array(8)].map((_, index) => (
           <div
             key={index}
             className="aspect-[3/4] bg-gray-200 rounded-lg animate-pulse"
@@ -49,7 +49,7 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
   if (dressOptions.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No dress options available</p>
+        <p className="text-gray-500">No dress options available. Please upload dress images first.</p>
       </div>
     );
   }
@@ -73,9 +73,12 @@ export const OutfitSelector = ({ onSelect, selectedDress }: OutfitSelectorProps)
               alt={dress.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               onError={(e) => {
-                console.error('Failed to load dress image from Supabase:', dress.image_url);
-                // Fallback to a placeholder or hide the image
-                e.currentTarget.style.display = 'none';
+                console.error('Failed to load dress image:', dress.image_url);
+                // Show placeholder or fallback image
+                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI2NyIgdmlld0JveD0iMCAwIDIwMCAyNjciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjY3IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTMzLjVMMTAwIDEzMy41WiIgc3Ryb2tlPSIjOUI5QkEwIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4OCIgeT0iMTIxLjUiPgo8cGF0aCBkPSJNMTggMTNWMTlBMiAyIDAgMCAxIDE2IDIxSDVBMiAyIDAgMCAxIDMgMTlWOEEyIDIgMCAwIDEgNSA2SDEwTTE0IDNIMTdMOSAxMUwxMSAxM0wxOSA1VjgiIHN0cm9rZT0iIzlCOUJBMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cjwvc3ZnPgo=';
+              }}
+              onLoad={() => {
+                console.log('Successfully loaded dress image:', dress.image_url);
               }}
             />
           </div>

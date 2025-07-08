@@ -5,35 +5,35 @@ import { dressService } from '../services/dressService';
 const dressImageMappings = [
   {
     name: 'Purple Sparkle Dress',
-    imagePath: '/lovable-uploads/15cde8fc-66cc-4549-8fa6-cafe1c1d6968.png'
+    imagePath: '/lovable-uploads/48565db2-e481-4767-a216-817ea6147143.png'
   },
   {
     name: 'Rose Floral Dress', 
-    imagePath: '/lovable-uploads/af95916a-f7f9-402b-8118-08c89b9263b2.png'
+    imagePath: '/lovable-uploads/f9a2d521-c373-40e2-b2c0-f64301423b9e.png'
   },
   {
     name: 'Pink Bow Dress',
-    imagePath: '/lovable-uploads/5cdd24d5-1633-40e7-99ce-3c382d9a1024.png'
+    imagePath: '/lovable-uploads/3eb398d8-f887-45fc-bfb7-4b706c9d5296.png'
   },
   {
     name: 'Pink Ruffle Dress',
-    imagePath: '/lovable-uploads/4807d879-ca98-44d7-8d28-128a4ad011a6.png'
+    imagePath: '/lovable-uploads/9554ffbd-5de4-4638-b723-312f20b6a76d.png'
   },
   {
     name: 'White Tulle Dress',
-    imagePath: '/lovable-uploads/d4148529-54e6-4477-a708-3e9980de944b.png'
+    imagePath: '/lovable-uploads/dcfbd414-08ff-4830-9e27-74d67519d227.png'
   },
   {
     name: 'Peach Flower Dress',
-    imagePath: '/lovable-uploads/9580a538-2c00-499d-b2c3-2849454ed4f9.png'
+    imagePath: '/lovable-uploads/bbe34bf8-a8d6-41ca-944b-b1d5dcea8505.png'
   },
   {
     name: 'Black Sparkle Dress',
-    imagePath: '/lovable-uploads/1a77594f-0da2-42c9-9578-41db60e8d795.png'
+    imagePath: '/lovable-uploads/aa85ab4e-7481-4243-a8fb-4e78278730f1.png'
   },
   {
     name: 'Blue Princess Dress',
-    imagePath: '/lovable-uploads/1fae24a0-e45a-4102-951f-5c0613bb72ce.png'
+    imagePath: '/lovable-uploads/c775eeac-7d8e-4613-9c1e-05f791713036.png'
   }
 ];
 
@@ -64,13 +64,13 @@ export async function uploadAllDressImages(): Promise<void> {
           // Convert image path to File object
           const file = await pathToFile(imageMapping.imagePath, `${dressOption.name}.png`);
           
-          // Upload to Supabase storage
+          // Upload to Supabase storage and get public URL
           const publicUrl = await dressService.uploadDressImage(file, dressOption.id);
           
           // Update database with new public URL
           await dressService.updateDressImageUrl(dressOption.id, publicUrl);
           
-          console.log(`Successfully uploaded ${dressOption.name} - URL: ${publicUrl}`);
+          console.log(`Successfully uploaded ${dressOption.name} - Public URL: ${publicUrl}`);
         } catch (error) {
           console.error(`Failed to upload ${dressOption.name}:`, error);
         }

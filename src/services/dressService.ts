@@ -25,10 +25,12 @@ export const dressService = {
     return data || [];
   },
 
-  // Upload dress image to Supabase storage and update database
+  // Upload dress image to Supabase storage and return public URL
   async uploadDressImage(file: File, dressId: string): Promise<string> {
     const fileName = `dress-${dressId}-${Date.now()}.png`;
     const filePath = `dress-options/${fileName}`;
+
+    console.log(`Uploading file to Supabase storage: ${filePath}`);
 
     // Upload to storage
     const { data, error } = await supabase.storage
@@ -48,11 +50,14 @@ export const dressService = {
       .from('tryon-images')
       .getPublicUrl(data.path);
 
+    console.log(`Generated public URL: ${publicUrl}`);
     return publicUrl;
   },
 
   // Update dress option with new image URL
   async updateDressImageUrl(dressId: string, imageUrl: string): Promise<void> {
+    console.log(`Updating dress ${dressId} with image URL: ${imageUrl}`);
+    
     const { error } = await supabase
       .from('dress_options')
       .update({ 
@@ -65,5 +70,7 @@ export const dressService = {
       console.error('Error updating dress option:', error);
       throw new Error(`Failed to update dress option: ${error.message}`);
     }
+
+    console.log(`Successfully updated dress ${dressId} with new image URL`);
   }
 };
