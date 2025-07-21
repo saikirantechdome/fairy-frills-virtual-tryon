@@ -93,7 +93,7 @@ export const ImageUpload = ({
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full h-48 object-cover"
+              className="w-full max-h-64 object-contain"
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
               <button
