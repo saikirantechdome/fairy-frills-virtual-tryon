@@ -1,20 +1,33 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ImageUpload } from '../components/ImageUpload';
 import { OutfitSelector } from '../components/OutfitSelector';
 import { ResultDisplay } from '../components/ResultDisplay';
 import { TryOnButton } from '../components/TryOnButton';
 import { DressImageUploader } from '../components/DressImageUploader';
+import { Button } from '@/components/ui/button';
+import { LogOut, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabaseService, TryOnSession } from '../services/supabaseService';
 
 const Index = () => {
+  const { user, profile, loading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [modelImage, setModelImage] = useState<File | null>(null);
   const [selectedDress, setSelectedDress] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<TryOnSession | null>(null);
   const [showUploader, setShowUploader] = useState(false);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   // Subscribe to session updates
   useEffect(() => {
@@ -98,15 +111,53 @@ const Index = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-[#E799AA]/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-3xl font-bold text-[#E799AA]">
-            Fairyfrills Virtual Try-On
-          </h1>
-          <p className="text-gray-600 mt-1">AI-powered fashion fitting experience</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-[#E799AA]">
+                Fairyfrills Virtual Try-On
+              </h1>
+              <p className="text-gray-600 mt-1">AI-powered fashion fitting experience</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-gray-700">
+                <User className="h-4 w-4" />
+                <span className="text-sm font-medium">{profile?.name || user.email}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
 
