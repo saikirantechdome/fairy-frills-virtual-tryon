@@ -135,6 +135,10 @@ export const ImageUpload = ({
               <p className="text-xs text-gray-500 mt-1">
                 PNG, JPG up to 10MB
               </p>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed max-w-sm">
+                📷 Upload a clear, front-facing JPG or PNG image in vertical (portrait) orientation — 512×768 or 1024×1536 recommended.<br/>
+                Ensure the face is clearly visible, well-lit, centered, and not cropped for best Virtual Try-On results.
+              </p>
             </div>
           </div>
         </div>

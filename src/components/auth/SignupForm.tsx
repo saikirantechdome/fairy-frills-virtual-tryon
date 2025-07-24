@@ -132,7 +132,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleForm }) => {
               {error}
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-[#E799AA] hover:bg-[#E799AA]/80 text-white" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
