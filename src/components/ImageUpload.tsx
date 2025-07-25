@@ -132,7 +132,7 @@ export const ImageUpload = ({
                 <img 
                   src="/lovable-uploads/2e388f33-a93f-40c4-af57-0df691bf2dd8.png" 
                   alt="Example of good photo for virtual try-on" 
-                  className="w-16 h-20 object-cover rounded border border-gray-200"
+                  className="w-24 h-32 object-cover rounded border border-gray-200"
                 />
               </div>
             </div>
