@@ -135,10 +135,25 @@ export const ImageUpload = ({
               <p className="text-xs text-gray-500 mt-1">
                 PNG, JPG up to 10MB
               </p>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed max-w-sm">
-                📷 Upload a clear, front-facing JPG or PNG image in vertical (portrait) orientation — 512×768 or 1024×1536 recommended.<br/>
-                Ensure the face is clearly visible, well-lit, centered, and not cropped for best Virtual Try-On results.
-              </p>
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-gray-700 font-medium">
+                  📤 Upload a clear, front-facing image in portrait (vertical) orientation
+                </p>
+                <p className="text-xs text-gray-500">
+                  Recommended size: 512×768 or 1024×1536
+                </p>
+                <p className="text-xs text-gray-500">
+                  Make sure the face is well-lit, centered, not cropped, and clearly visible
+                </p>
+                <div className="mt-2 flex justify-center">
+                  <img 
+                    src="/lovable-uploads/2e388f33-a93f-40c4-af57-0df691bf2dd8.png" 
+                    alt="Example of good photo for virtual try-on" 
+                    className="w-16 h-20 object-cover rounded border border-gray-200"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 text-center">Example image</p>
+              </div>
             </div>
           </div>
         </div>

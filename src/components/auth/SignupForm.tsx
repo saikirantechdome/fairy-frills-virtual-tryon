@@ -93,7 +93,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleForm }) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number (Optional)</Label>
+            <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
               name="phone"
@@ -101,6 +101,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleForm }) => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="Enter your phone number"
+              required
             />
           </div>
           <div className="space-y-2">
