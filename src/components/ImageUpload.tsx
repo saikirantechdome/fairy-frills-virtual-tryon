@@ -135,15 +135,10 @@ export const ImageUpload = ({
               <p className="text-xs text-gray-500 mt-1">
                 PNG, JPG up to 10MB
               </p>
-              <div className="mt-3 space-y-2">
-                <p className="text-xs text-gray-700 font-medium">
-                  📤 Upload a clear, front-facing image in portrait (vertical) orientation
-                </p>
+              <div className="mt-2 space-y-2">
                 <p className="text-xs text-gray-500">
-                  Recommended size: 512×768 or 1024×1536
-                </p>
-                <p className="text-xs text-gray-500">
-                  Make sure the face is well-lit, centered, not cropped, and clearly visible
+                  Upload a clear, front-facing photo (PNG/JPG, max 10MB) in portrait orientation — 512×768 or 1024×1536 recommended.
+                  Ensure the face is well-lit, centered, not cropped, and fully visible. See example below.
                 </p>
                 <div className="mt-2 flex justify-center">
                   <img 
@@ -152,7 +147,6 @@ export const ImageUpload = ({
                     className="w-16 h-20 object-cover rounded border border-gray-200"
                   />
                 </div>
-                <p className="text-xs text-gray-400 text-center">Example image</p>
               </div>
             </div>
           </div>
