@@ -123,30 +123,17 @@ export const ImageUpload = ({
           )}
         >
           <div className="flex flex-col items-center gap-3">
-            {isDragOver ? (
-              <Upload className="w-8 h-8 text-purple-500" />
-            ) : (
-              <ImageIcon className="w-8 h-8 text-gray-400" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-gray-700">
-                {placeholder}
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500">
+                Upload a clear, front-facing photo (PNG/JPG, max 10MB) in portrait orientation — 512×768 or 1024×1536 recommended.
+                Ensure the face is well-lit, centered, not cropped, and fully visible. See example below.
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                PNG, JPG up to 10MB
-              </p>
-              <div className="mt-2 space-y-2">
-                <p className="text-xs text-gray-500">
-                  Upload a clear, front-facing photo (PNG/JPG, max 10MB) in portrait orientation — 512×768 or 1024×1536 recommended.
-                  Ensure the face is well-lit, centered, not cropped, and fully visible. See example below.
-                </p>
-                <div className="mt-2 flex justify-center">
-                  <img 
-                    src="/lovable-uploads/2e388f33-a93f-40c4-af57-0df691bf2dd8.png" 
-                    alt="Example of good photo for virtual try-on" 
-                    className="w-16 h-20 object-cover rounded border border-gray-200"
-                  />
-                </div>
+              <div className="mt-2 flex justify-center">
+                <img 
+                  src="/lovable-uploads/2e388f33-a93f-40c4-af57-0df691bf2dd8.png" 
+                  alt="Example of good photo for virtual try-on" 
+                  className="w-16 h-20 object-cover rounded border border-gray-200"
+                />
               </div>
             </div>
           </div>
