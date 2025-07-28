@@ -11,6 +11,16 @@ export interface TryOnSession {
   updated_at: string;
 }
 
+export interface ResultMessage {
+  id: string;
+  session_id: string;
+  status: 'pending' | 'processing' | 'success' | 'failed';
+  message: string | null;
+  result_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export const supabaseService = {
   // Upload image to storage
   async uploadImage(file: File, path: string): Promise<string> {
@@ -51,7 +61,67 @@ export const supabaseService = {
       throw new Error(`Failed to create session: ${error.message}`);
     }
 
+    // Create initial result message entry
+    await this.createResultMessage(data.id, 'pending');
+
     return data as TryOnSession;
+  },
+
+  // Create a result message entry
+  async createResultMessage(sessionId: string, status: 'pending' | 'processing' | 'success' | 'failed', message?: string, resultImageUrl?: string): Promise<ResultMessage> {
+    const { data, error } = await supabase
+      .from('result_messages')
+      .insert({
+        session_id: sessionId,
+        status,
+        message: message || null,
+        result_image_url: resultImageUrl || null
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Result message creation error:', error);
+      throw new Error(`Failed to create result message: ${error.message}`);
+    }
+
+    return data as ResultMessage;
+  },
+
+  // Update result message
+  async updateResultMessage(sessionId: string, status: 'pending' | 'processing' | 'success' | 'failed', message?: string, resultImageUrl?: string): Promise<void> {
+    const { error } = await supabase
+      .from('result_messages')
+      .update({
+        status,
+        message: message || null,
+        result_image_url: resultImageUrl || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('session_id', sessionId);
+
+    if (error) {
+      console.error('Result message update error:', error);
+      throw new Error(`Failed to update result message: ${error.message}`);
+    }
+  },
+
+  // Poll result message for a session
+  async getResultMessage(sessionId: string): Promise<ResultMessage | null> {
+    const { data, error } = await supabase
+      .from('result_messages')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Result message fetch error:', error);
+      return null;
+    }
+
+    return data as ResultMessage | null;
   },
 
   // Update session with result

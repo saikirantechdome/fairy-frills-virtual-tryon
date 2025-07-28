@@ -10,7 +10,7 @@ import { DressImageUploader } from '../components/DressImageUploader';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabaseService, TryOnSession } from '../services/supabaseService';
+import { supabaseService, TryOnSession, ResultMessage } from '../services/supabaseService';
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
@@ -21,6 +21,7 @@ const Index = () => {
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<TryOnSession | null>(null);
   const [showUploader, setShowUploader] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -29,29 +30,38 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  // Subscribe to session updates
+  // Poll result messages every 3 seconds when processing
   useEffect(() => {
-    if (!currentSession) return;
+    if (!currentSession || !isProcessing) return;
 
-    const unsubscribe = supabaseService.subscribeToSession(
-      currentSession.id,
-      (updatedSession) => {
-        console.log('Session updated:', updatedSession);
-        setCurrentSession(updatedSession);
+    const pollInterval = setInterval(async () => {
+      try {
+        const resultMessage = await supabaseService.getResultMessage(currentSession.id);
         
-        if (updatedSession.status === 'completed' && updatedSession.result_image_url) {
-          setResultImage(updatedSession.result_image_url);
-          setIsProcessing(false);
-          toast.success('Virtual try-on completed!');
-        } else if (updatedSession.status === 'failed') {
-          setIsProcessing(false);
-          toast.error('Try-on processing failed. Please try again.');
+        if (resultMessage) {
+          console.log('Result message:', resultMessage);
+          
+          if (resultMessage.status === 'success' && resultMessage.result_image_url) {
+            setResultImage(resultMessage.result_image_url);
+            setIsProcessing(false);
+            setErrorMessage(null);
+            toast.success('Virtual try-on completed!');
+            clearInterval(pollInterval);
+          } else if (resultMessage.status === 'failed') {
+            setIsProcessing(false);
+            setResultImage(null);
+            setErrorMessage(resultMessage.message || 'Something went wrong. Please try again.');
+            toast.error(resultMessage.message || 'Try-on processing failed. Please try again.');
+            clearInterval(pollInterval);
+          }
         }
+      } catch (error) {
+        console.error('Error polling result message:', error);
       }
-    );
+    }, 3000); // Poll every 3 seconds
 
-    return unsubscribe;
-  }, [currentSession]);
+    return () => clearInterval(pollInterval);
+  }, [currentSession, isProcessing]);
 
   // Show uploader button for initial setup (can be removed later)
   useEffect(() => {
@@ -84,6 +94,7 @@ const Index = () => {
     setIsProcessing(true);
     setResultImage(null);
     setCurrentSession(null);
+    setErrorMessage(null);
     
     try {
       console.log('Starting virtual try-on process...');
@@ -209,6 +220,7 @@ const Index = () => {
             <ResultDisplay
               isProcessing={isProcessing}
               resultImage={resultImage}
+              errorMessage={errorMessage}
             />
           </div>
         </div>

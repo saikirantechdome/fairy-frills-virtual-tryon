@@ -7,9 +7,10 @@ import { toast } from 'sonner';
 interface ResultDisplayProps {
   isProcessing: boolean;
   resultImage: string | null;
+  errorMessage?: string | null;
 }
 
-export const ResultDisplay = ({ isProcessing, resultImage }: ResultDisplayProps) => {
+export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: ResultDisplayProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleDownload = () => {
@@ -101,6 +102,19 @@ export const ResultDisplay = ({ isProcessing, resultImage }: ResultDisplayProps)
                 <Download className="w-4 h-4" />
               </Button>
             </div>
+          </div>
+        ) : errorMessage ? (
+          // Error state
+          <div className="h-full flex flex-col items-center justify-center text-red-500">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <div className="w-8 h-8 bg-red-200 rounded-full"></div>
+            </div>
+            <p className="text-center text-red-600 font-medium mb-2">
+              Try-on Failed
+            </p>
+            <p className="text-center text-red-500 text-sm px-4">
+              {errorMessage}
+            </p>
           </div>
         ) : (
           // Placeholder state

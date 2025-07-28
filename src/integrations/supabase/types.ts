@@ -68,6 +68,36 @@ export type Database = {
         }
         Relationships: []
       }
+      result_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          result_image_url: string | null
+          session_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          result_image_url?: string | null
+          session_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          result_image_url?: string | null
+          session_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tryon_sessions: {
         Row: {
           created_at: string
