@@ -30,33 +30,33 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  // Poll result messages every 3 seconds when processing
+  // Poll session status every 3 seconds when processing
   useEffect(() => {
     if (!currentSession || !isProcessing) return;
 
     const pollInterval = setInterval(async () => {
       try {
-        const resultMessage = await supabaseService.getResultMessage(currentSession.id);
+        const session = await supabaseService.getSession(currentSession.id);
         
-        if (resultMessage) {
-          console.log('Result message:', resultMessage);
+        if (session) {
+          console.log('Session status:', session);
           
-          if (resultMessage.status === 'success' && resultMessage.result_image_url) {
-            setResultImage(resultMessage.result_image_url);
+          if (session.status === 'completed' && session.result_image_url) {
+            setResultImage(session.result_image_url);
             setIsProcessing(false);
             setErrorMessage(null);
             toast.success('Virtual try-on completed!');
             clearInterval(pollInterval);
-          } else if (resultMessage.status === 'failed') {
+          } else if (session.status === 'failed') {
             setIsProcessing(false);
             setResultImage(null);
-            setErrorMessage(resultMessage.message || 'Something went wrong. Please try again.');
-            toast.error(resultMessage.message || 'Try-on processing failed. Please try again.');
+            setErrorMessage(session.result_message || 'Something went wrong. Please try again.');
+            toast.error(session.result_message || 'Try-on processing failed. Please try again.');
             clearInterval(pollInterval);
           }
         }
       } catch (error) {
-        console.error('Error polling result message:', error);
+        console.error('Error polling session:', error);
       }
     }, 3000); // Poll every 3 seconds
 

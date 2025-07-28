@@ -6,6 +6,7 @@ export interface TryOnSession {
   model_image_url: string;
   dress_image_url: string;
   result_image_url: string | null;
+  result_message: string | null;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   created_at: string;
   updated_at: string;
@@ -61,85 +62,43 @@ export const supabaseService = {
       throw new Error(`Failed to create session: ${error.message}`);
     }
 
-    // Create initial result message entry
-    await this.createResultMessage(data.id, 'pending');
-
     return data as TryOnSession;
   },
 
-  // Create a result message entry
-  async createResultMessage(sessionId: string, status: 'pending' | 'processing' | 'success' | 'failed', message?: string, resultImageUrl?: string): Promise<ResultMessage> {
+  // Get session by ID
+  async getSession(sessionId: string): Promise<TryOnSession | null> {
     const { data, error } = await supabase
-      .from('result_messages')
-      .insert({
-        session_id: sessionId,
-        status,
-        message: message || null,
-        result_image_url: resultImageUrl || null
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Result message creation error:', error);
-      throw new Error(`Failed to create result message: ${error.message}`);
-    }
-
-    return data as ResultMessage;
-  },
-
-  // Update result message
-  async updateResultMessage(sessionId: string, status: 'pending' | 'processing' | 'success' | 'failed', message?: string, resultImageUrl?: string): Promise<void> {
-    const { error } = await supabase
-      .from('result_messages')
-      .update({
-        status,
-        message: message || null,
-        result_image_url: resultImageUrl || null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('session_id', sessionId);
-
-    if (error) {
-      console.error('Result message update error:', error);
-      throw new Error(`Failed to update result message: ${error.message}`);
-    }
-  },
-
-  // Poll result message for a session
-  async getResultMessage(sessionId: string): Promise<ResultMessage | null> {
-    const { data, error } = await supabase
-      .from('result_messages')
+      .from('tryon_sessions')
       .select('*')
-      .eq('session_id', sessionId)
-      .order('updated_at', { ascending: false })
-      .limit(1)
+      .eq('id', sessionId)
       .maybeSingle();
 
     if (error) {
-      console.error('Result message fetch error:', error);
+      console.error('Session fetch error:', error);
       return null;
     }
 
-    return data as ResultMessage | null;
+    return data as TryOnSession | null;
   },
 
-  // Update session with result
-  async updateSession(sessionId: string, resultImageUrl: string, status: 'completed' | 'failed' = 'completed'): Promise<void> {
+  // Update session status and message
+  async updateSessionStatus(sessionId: string, status: 'pending' | 'processing' | 'completed' | 'failed', message?: string, resultImageUrl?: string): Promise<void> {
     const { error } = await supabase
       .from('tryon_sessions')
       .update({
-        result_image_url: resultImageUrl,
         status,
+        result_message: message || null,
+        result_image_url: resultImageUrl || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', sessionId);
 
     if (error) {
-      console.error('Session update error:', error);
-      throw new Error(`Failed to update session: ${error.message}`);
+      console.error('Session status update error:', error);
+      throw new Error(`Failed to update session status: ${error.message}`);
     }
   },
+
 
   // Listen to session updates
   subscribeToSession(sessionId: string, callback: (session: TryOnSession) => void) {

@@ -105,6 +105,7 @@ export type Database = {
           id: string
           model_image_url: string
           result_image_url: string | null
+          result_message: string | null
           status: string
           updated_at: string
         }
@@ -114,6 +115,7 @@ export type Database = {
           id?: string
           model_image_url: string
           result_image_url?: string | null
+          result_message?: string | null
           status?: string
           updated_at?: string
         }
@@ -123,6 +125,7 @@ export type Database = {
           id?: string
           model_image_url?: string
           result_image_url?: string | null
+          result_message?: string | null
           status?: string
           updated_at?: string
         }
