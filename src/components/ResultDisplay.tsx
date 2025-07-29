@@ -13,15 +13,24 @@ interface ResultDisplayProps {
 export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: ResultDisplayProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (resultImage) {
-      const link = document.createElement('a');
-      link.href = resultImage;
-      link.download = 'virtual-try-on-result.jpg';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success('Image downloaded successfully!');
+      try {
+        const response = await fetch(resultImage);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'virtual-try-on-result.jpg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast.success('Image downloaded successfully!');
+      } catch (error) {
+        console.error('Download failed:', error);
+        toast.error('Download failed. Please try again.');
+      }
     }
   };
 
@@ -63,7 +72,7 @@ export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: Resul
             </div>
             <div className="mt-6 text-center">
               <p className="text-gray-700 font-medium">Generating your look...</p>
-              <p className="text-sm text-gray-500 mt-1">This typically takes 30-60 seconds</p>
+              <p className="text-sm text-gray-500 mt-1">This may take 1 to 2 minutes. Please wait while your image is being processed.</p>
             </div>
           </div>
         ) : resultImage ? (
