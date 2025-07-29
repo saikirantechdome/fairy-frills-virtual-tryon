@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface TryOnSession {
   id: string;
+  user_id: string;
   model_image_url: string;
   dress_image_url: string;
   result_image_url: string | null;
@@ -47,9 +48,17 @@ export const supabaseService = {
 
   // Create a new try-on session
   async createSession(modelImageUrl: string, dressImageUrl: string): Promise<TryOnSession> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User must be logged in to create a session');
+    }
+
     const { data, error } = await supabase
       .from('tryon_sessions')
       .insert({
+        user_id: user.id,
         model_image_url: modelImageUrl,
         dress_image_url: dressImageUrl,
         status: 'pending'
