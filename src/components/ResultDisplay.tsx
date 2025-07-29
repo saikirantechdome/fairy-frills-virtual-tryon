@@ -13,24 +13,15 @@ interface ResultDisplayProps {
 export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: ResultDisplayProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (resultImage) {
-      try {
-        const response = await fetch(resultImage);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'virtual-try-on-result.jpg';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        toast.success('Image downloaded successfully!');
-      } catch (error) {
-        console.error('Download failed:', error);
-        toast.error('Download failed. Please try again.');
-      }
+      const link = document.createElement('a');
+      link.href = resultImage;
+      link.download = 'virtual-try-on-result.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Image downloaded successfully!');
     }
   };
 
