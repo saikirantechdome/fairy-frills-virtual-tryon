@@ -24,7 +24,7 @@ export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: Resul
       return;
     }
 
-    const totalDuration = 180000; // 3 minutes in milliseconds
+    const totalDuration = 135000; // 2 minutes 15 seconds in milliseconds
     const updateInterval = 100; // Update every 100ms for smooth animation
     const incrementPerUpdate = (100 / (totalDuration / updateInterval));
 
