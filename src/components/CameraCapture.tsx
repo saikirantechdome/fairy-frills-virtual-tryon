@@ -42,10 +42,29 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         
-        // Ensure video starts playing
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play().catch(console.error);
-        };
+        // Wait for the video to be ready and start playing
+        await new Promise<void>((resolve) => {
+          const video = videoRef.current!;
+          
+          const onLoadedMetadata = async () => {
+            try {
+              await video.play();
+              console.log('Video is now playing');
+              resolve();
+            } catch (err) {
+              console.error('Error playing video:', err);
+              resolve();
+            }
+          };
+          
+          if (video.readyState >= 1) {
+            // Video metadata is already loaded
+            onLoadedMetadata();
+          } else {
+            // Wait for metadata to load
+            video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+          }
+        });
         
         setIsActive(true);
       }
