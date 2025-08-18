@@ -39,13 +39,17 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        const video = videoRef.current;
+        video.srcObject = stream;
+        video.setAttribute('playsinline', 'true');
+        video.muted = true;
         streamRef.current = stream;
+        
+        // Mark active immediately so the container renders with height
+        setIsActive(true);
         
         // Wait for the video to be ready and start playing
         await new Promise<void>((resolve) => {
-          const video = videoRef.current!;
-          
           const onLoadedMetadata = async () => {
             try {
               await video.play();
@@ -58,15 +62,11 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
           };
           
           if (video.readyState >= 1) {
-            // Video metadata is already loaded
             onLoadedMetadata();
           } else {
-            // Wait for metadata to load
             video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
           }
         });
-        
-        setIsActive(true);
       }
     } catch (err: any) {
       console.error('Camera access error:', err);
@@ -223,7 +223,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
             autoPlay
             playsInline
             muted
-            className="w-full max-h-96 rounded-lg bg-black"
+            className="w-full h-80 sm:h-96 rounded-lg bg-black object-contain"
           />
           
           <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
