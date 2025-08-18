@@ -1,7 +1,9 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Button } from './ui/button';
+import { CameraCapture } from './CameraCapture';
 
 interface ImageUploadProps {
   onUpload: (file: File) => void;
@@ -20,6 +22,8 @@ export const ImageUpload = ({
 }: ImageUploadProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Create preview URL when file is uploaded
@@ -73,7 +77,31 @@ export const ImageUpload = ({
   };
 
   const handleClick = () => {
+    setShowOptions(true);
+  };
+
+  const handleFileUpload = () => {
     fileInputRef.current?.click();
+    setShowOptions(false);
+  };
+
+  const handleCameraOption = () => {
+    setShowCamera(true);
+    setShowOptions(false);
+  };
+
+  const handleCameraCapture = (file: File) => {
+    onUpload(file);
+    setShowCamera(false);
+  };
+
+  const handleCameraCancel = () => {
+    setShowCamera(false);
+    setShowOptions(false);
+  };
+
+  const handleOptionsCancel = () => {
+    setShowOptions(false);
   };
 
   return (
@@ -108,6 +136,51 @@ export const ImageUpload = ({
             {uploadedFile?.name}
           </div>
         </div>
+      ) : showOptions ? (
+        // Upload options state
+        <div className="space-y-4">
+          <div className="text-center py-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Choose Upload Method</h3>
+            <p className="text-sm text-gray-600 mb-6">How would you like to add your photo?</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Button
+              onClick={handleCameraOption}
+              variant="outline"
+              className="h-20 flex flex-col items-center gap-2 border-2 hover:border-[#E799AA] hover:bg-[#E799AA]/5"
+            >
+              <Camera className="h-6 w-6 text-[#E799AA]" />
+              <span className="text-sm font-medium">Use Camera</span>
+            </Button>
+            
+            <Button
+              onClick={handleFileUpload}
+              variant="outline"
+              className="h-20 flex flex-col items-center gap-2 border-2 hover:border-[#E799AA] hover:bg-[#E799AA]/5"
+            >
+              <Upload className="h-6 w-6 text-[#E799AA]" />
+              <span className="text-sm font-medium">Upload from Device</span>
+            </Button>
+          </div>
+          
+          <div className="flex justify-center pt-4">
+            <Button
+              onClick={handleOptionsCancel}
+              variant="ghost"
+              size="sm"
+              className="text-gray-500"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : showCamera ? (
+        // Camera capture state
+        <CameraCapture
+          onCapture={handleCameraCapture}
+          onCancel={handleCameraCancel}
+        />
       ) : (
         // Upload state
         <div
