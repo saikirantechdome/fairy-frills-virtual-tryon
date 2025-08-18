@@ -31,8 +31,8 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
       const constraints = {
         video: {
           facingMode: facingMode,
-          width: { ideal: 1024 },
-          height: { ideal: 1536 },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
         }
       };
 
@@ -40,33 +40,49 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
       
       if (videoRef.current) {
         const video = videoRef.current;
-        video.srcObject = stream;
-        video.setAttribute('playsinline', 'true');
+        
+        // Set all video attributes before stream
+        video.autoplay = true;
+        video.playsInline = true;
         video.muted = true;
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('autoplay', 'true');
+        video.setAttribute('muted', 'true');
+        
+        // Set the stream
+        video.srcObject = stream;
         streamRef.current = stream;
         
-        // Mark active immediately so the container renders with height
+        // Mark active before video loads to show container
         setIsActive(true);
         
-        // Wait for the video to be ready and start playing
-        await new Promise<void>((resolve) => {
-          const onLoadedMetadata = async () => {
-            try {
-              await video.play();
-              console.log('Video is now playing');
-              resolve();
-            } catch (err) {
-              console.error('Error playing video:', err);
-              resolve();
-            }
-          };
-          
-          if (video.readyState >= 1) {
-            onLoadedMetadata();
-          } else {
-            video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+        // Force video to load and play
+        video.load();
+        
+        // Wait for video to be ready
+        const playVideo = async () => {
+          try {
+            await video.play();
+            console.log('Video is now playing successfully');
+          } catch (playErr) {
+            console.error('Error playing video:', playErr);
+            // Try again in case of temporary issues
+            setTimeout(async () => {
+              try {
+                await video.play();
+                console.log('Video playing on retry');
+              } catch (retryErr) {
+                console.error('Retry failed:', retryErr);
+              }
+            }, 100);
           }
-        });
+        };
+
+        if (video.readyState >= 1) {
+          await playVideo();
+        } else {
+          video.addEventListener('loadedmetadata', playVideo, { once: true });
+        }
       }
     } catch (err: any) {
       console.error('Camera access error:', err);
@@ -184,8 +200,8 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
   return (
     <div className={cn('space-y-4', className)}>
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <p className="text-destructive text-sm">{error}</p>
           <Button 
             onClick={() => setError(null)} 
             variant="outline" 
@@ -200,16 +216,16 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
       {!isActive && !capturedImage && !error && (
         <div className="text-center py-8">
           <div className="mb-4">
-            <Camera className="h-16 w-16 mx-auto text-gray-400" />
+            <Camera className="h-16 w-16 mx-auto text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Camera Capture</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <h3 className="text-lg font-semibold text-foreground mb-2">Camera Capture</h3>
+          <p className="text-sm text-muted-foreground mb-4">
             Take a photo using your device's camera
           </p>
           <Button 
             onClick={startCamera} 
             disabled={isStarting}
-            className="bg-[#E799AA] hover:bg-[#E799AA]/80"
+            className="bg-primary text-primary-foreground hover:bg-primary/80"
           >
             {isStarting ? 'Starting Camera...' : 'Start Camera'}
           </Button>
@@ -220,10 +236,14 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
         <div className="relative">
           <video
             ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-80 sm:h-96 rounded-lg bg-black object-contain"
+            autoPlay={true}
+            playsInline={true}
+            muted={true}
+            className="w-full h-80 sm:h-96 rounded-lg bg-card border border-border object-cover"
+            style={{ 
+              minHeight: '320px',
+              backgroundColor: 'hsl(var(--card))'
+            }}
           />
           
           <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
@@ -231,7 +251,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
               variant="outline"
               size="icon"
               onClick={switchCamera}
-              className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              className="bg-background/80 border-border text-foreground hover:bg-background/90 backdrop-blur-sm"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -239,7 +259,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
             <Button
               onClick={captureImage}
               size="lg"
-              className="bg-white text-black hover:bg-gray-100 rounded-full w-16 h-16"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-16 h-16"
             >
               <Camera className="h-6 w-6" />
             </Button>
@@ -248,7 +268,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
               variant="outline"
               size="icon"
               onClick={handleCancel}
-              className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+              className="bg-background/80 border-border text-foreground hover:bg-background/90 backdrop-blur-sm"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -262,7 +282,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
             <img
               src={capturedImage}
               alt="Captured"
-              className="w-full max-h-96 object-contain rounded-lg border-2 border-gray-200"
+              className="w-full max-h-96 object-contain rounded-lg border-2 border-border"
             />
           </div>
           
@@ -280,7 +300,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
             <Button
               onClick={confirmCapture}
               disabled={isProcessing}
-              className="flex items-center gap-2 bg-[#E799AA] hover:bg-[#E799AA]/80"
+              className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/80"
             >
               <Check className="h-4 w-4" />
               {isProcessing ? 'Processing...' : 'Use Photo'}
