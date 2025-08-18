@@ -41,6 +41,12 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
+        
+        // Ensure video starts playing
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(console.error);
+        };
+        
         setIsActive(true);
       }
     } catch (err: any) {
