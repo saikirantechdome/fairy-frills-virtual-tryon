@@ -347,7 +347,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
           className="flex-1 h-12 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
           size="lg"
         >
-          <FolderOpen className="w-4 h-4 mr-2" style={{ color: '#E799AA' }} />
+          <FolderOpen className="w-4 h-4 mr-2 text-primary-foreground" />
           Upload from Device
         </Button>
         
@@ -471,7 +471,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
         <img
           src={capturedImage!}
           alt="Captured"
-          className="w-full h-[400px] object-cover"
+          className="w-full h-[400px] object-contain bg-muted"
         />
       </div>
       
