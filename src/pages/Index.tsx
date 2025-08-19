@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ImageUpload } from '../components/ImageUpload';
+import { CameraUpload } from '../components/CameraUpload';
 import { OutfitSelector } from '../components/OutfitSelector';
 import { ResultDisplay } from '../components/ResultDisplay';
 import { TryOnButton } from '../components/TryOnButton';
@@ -183,11 +183,9 @@ const Index = () => {
                 <div className="w-2 h-2 bg-[#E799AA] rounded-full"></div>
                 Upload Your Photo
               </h2>
-              <ImageUpload
-                onUpload={handleModelUpload}
-                accept="image/*"
-                uploadedFile={modelImage}
-                placeholder="Drag & drop your photo here or click to upload"
+              <CameraUpload
+                onImageCapture={handleModelUpload}
+                onFileUpload={handleModelUpload}
               />
             </div>
 
