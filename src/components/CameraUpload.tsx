@@ -92,20 +92,23 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
       const constraintOptions = [
         {
           video: {
-            facingMode: 'user',
+            facingMode: 'environment',
             width: { ideal: 1280, min: 640 },
             height: { ideal: 720, min: 480 },
           }
         },
         {
           video: {
-            facingMode: 'user',
+            facingMode: 'environment',
             width: { ideal: 640 },
             height: { ideal: 480 },
           }
         },
         {
-          video: { facingMode: 'user' }
+          video: { facingMode: 'environment' }
+        },
+        {
+          video: { facingMode: 'user' } // Fallback to front camera
         },
         {
           video: true // Fallback to basic constraints
@@ -216,7 +219,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
   }, [checkCameraSupport, isSandboxDetected]);
 
   // Stop camera stream
-  const stopCamera = useCallback(() => {
+  const stopCamera = useCallback((keepCapturedState = false) => {
     console.log('Stopping camera...');
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => {
@@ -228,7 +231,9 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-    setUploadState('idle');
+    if (!keepCapturedState) {
+      setUploadState('idle');
+    }
     setShowCameraModal(false);
     setIsVideoReady(false);
     setCameraError(null);
@@ -271,8 +276,8 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
         setCapturedImage(imageUrl);
         setUploadState('image-captured');
 
-        // Stop camera after capture
-        stopCamera();
+        // Stop camera after capture but keep captured state
+        stopCamera(true);
 
         // Call callback with captured file
         onImageCapture?.(file);
@@ -385,7 +390,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
 
   const renderCameraModal = () => (
     <Dialog open={showCameraModal} onOpenChange={(open) => {
-      if (!open) stopCamera();
+      if (!open) stopCamera(false);
     }}>
       <DialogContent className="sm:max-w-[90vw] max-w-[95vw] h-[90vh] max-h-[90vh] p-0">
         <DialogHeader className="p-4 pb-2">
@@ -420,7 +425,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
                   </div>
                 )}
               </div>
-              <Button onClick={stopCamera} variant="outline">
+              <Button onClick={() => stopCamera(false)} variant="outline">
                 Close
               </Button>
             </div>
@@ -462,7 +467,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
                 </Button>
                 
                 <Button
-                  onClick={stopCamera}
+                  onClick={() => stopCamera(false)}
                   variant="outline"
                   className="h-12 border-border hover:bg-secondary"
                   size="lg"
