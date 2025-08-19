@@ -338,34 +338,16 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
     }
   }, [onFileUpload]);
 
-  // Render sandbox warning
-  const renderSandboxWarning = () => (
-    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
-      <div className="flex items-center gap-3">
-        <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-        <div>
-          <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-            Sandbox Environment Detected
-          </p>
-          <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-            Camera may not work properly in preview mode. For best results, open in a new tab or deploy your app.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderUploadOptions = () => (
     <div className="space-y-4">
-      {isSandboxDetected && renderSandboxWarning()}
-      
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
           onClick={() => fileInputRef.current?.click()}
           className="flex-1 h-12 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
           size="lg"
         >
-          <FolderOpen className="w-4 h-4 mr-2" />
+          <FolderOpen className="w-4 h-4 mr-2" style={{ color: '#E799AA' }} />
           Upload from Device
         </Button>
         
@@ -489,7 +471,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
         <img
           src={capturedImage!}
           alt="Captured"
-          className="w-full h-[300px] object-cover"
+          className="w-full h-[400px] object-cover"
         />
       </div>
       
