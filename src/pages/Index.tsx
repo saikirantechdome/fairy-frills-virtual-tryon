@@ -178,8 +178,8 @@ const Index = () => {
           {/* Left Column - Upload Section */}
           <div className="space-y-6">
             {/* Model Photo Upload */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-[#E799AA]/20 shadow-lg">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-[#E799AA]/20 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <div className="w-2 h-2 bg-[#E799AA] rounded-full"></div>
                 Upload Your Photo
               </h2>
@@ -190,8 +190,8 @@ const Index = () => {
             </div>
 
             {/* Dress Selection */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-[#E799AA]/20 shadow-lg">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-[#E799AA]/20 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <div className="w-2 h-2 bg-[#E799AA] rounded-full"></div>
                 Choose Your Outfit
               </h2>

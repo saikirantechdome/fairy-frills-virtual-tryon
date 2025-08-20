@@ -84,8 +84,8 @@ export const ResultDisplay = ({ isProcessing, resultImage, errorMessage }: Resul
   };
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-100 shadow-lg">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-purple-100 shadow-lg">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
         Virtual Try-On Result
       </h2>
