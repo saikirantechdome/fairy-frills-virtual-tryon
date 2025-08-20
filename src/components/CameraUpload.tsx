@@ -506,10 +506,10 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
   );
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-xl mx-auto">
       <Card 
         className={`
-          p-8 border-2 border-dashed transition-all duration-200
+          p-4 border-2 border-dashed transition-all duration-200
           ${isDragging ? 'border-primary bg-secondary animate-pulse' : 'border-border bg-card'}
           ${uploadState === 'camera-preview' ? 'border-primary' : ''}
         `}
@@ -518,20 +518,20 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
         onDrop={handleDrop}
       >
         <div className="text-center">
-          <div className="mb-6">
+          <div className="mb-4">
             {uploadState === 'idle' && (
-              <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center mb-4">
-                <Upload className="w-8 h-8 text-primary-foreground" />
+              <div className="w-12 h-12 mx-auto bg-primary rounded-full flex items-center justify-center mb-3">
+                <Upload className="w-6 h-6 text-primary-foreground" />
               </div>
             )}
             
-            <h3 className="text-2xl font-bold text-foreground mb-2">
+            <h3 className="text-xl font-bold text-foreground mb-2">
               {uploadState === 'idle' && 'Upload Your Image'}
               {uploadState === 'camera-preview' && 'Camera Preview'}
               {uploadState === 'image-captured' && 'Image Ready'}
             </h3>
             
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {uploadState === 'idle' && 'Choose how you want to add your image'}
               {uploadState === 'camera-preview' && 'Position yourself and click capture when ready'}
               {uploadState === 'image-captured' && 'Your image has been processed successfully'}
