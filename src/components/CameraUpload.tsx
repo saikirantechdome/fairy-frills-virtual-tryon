@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Camera, Upload, X, Circle, FolderOpen, Maximize2, ExternalLink, AlertCircle } from 'lucide-react';
+import { Camera, Upload, X, Circle, FolderOpen, Maximize2, ExternalLink, AlertCircle, Loader2 } from 'lucide-react';
 
 interface CameraUploadProps {
   onImageCapture?: (file: File) => void;
@@ -25,6 +25,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [isSandboxDetected, setIsSandboxDetected] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -264,33 +265,28 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
     // Draw current video frame to canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+    setIsValidating(true);
+    toast({ title: 'Validating photo...', description: 'Please wait while we validate your photo' });
+
     // Convert canvas to blob
     canvas.toBlob(async (blob) => {
-      if (blob) {
-        const file = new File([blob], `camera-capture-${Date.now()}.jpg`, {
-          type: 'image/jpeg',
-        });
+      try {
+        if (blob) {
+          const file = new File([blob], `camera-capture-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+          });
 
-        // Show validation loading
-        toast({
-          title: "Validating photo...",
-          description: "Please wait while we validate your photo",
-        });
-
-        try {
           // Validate the photo using Google Cloud Vision API
           const { PhotoValidationService } = await import('../services/photoValidationService');
           const validation = await PhotoValidationService.validatePhoto(file);
           
           if (!validation.isValid) {
             toast({
-              title: "Validation failed",
+              title: 'Validation failed',
               description: validation.reason || 'Please capture a baby photo with dress for try-on.',
-              variant: "destructive",
+              variant: 'destructive',
             });
-            
-            // Show retake option by keeping camera active
-            return;
+            return; // keep camera active for retake
           }
 
           // Create preview URL
@@ -306,17 +302,19 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
 
           console.log('Photo captured and validated successfully');
           toast({
-            title: "Photo validated!",
-            description: "Your photo has been validated and is ready for try-on",
-          });
-        } catch (error) {
-          console.error('Validation error:', error);
-          toast({
-            title: "Validation error",
-            description: "Failed to validate photo. Please try again.",
-            variant: "destructive",
+            title: 'Photo validated!',
+            description: 'Your photo has been validated and is ready for try-on',
           });
         }
+      } catch (error) {
+        console.error('Validation error:', error);
+        toast({
+          title: 'Validation error',
+          description: 'Failed to validate photo. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsValidating(false);
       }
     }, 'image/jpeg', 0.9);
   }, [onImageCapture, stopCamera]);
@@ -456,12 +454,14 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
                     backgroundColor: 'hsl(var(--card))'
                   }}
                 />
-                {!isVideoReady && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-card text-card-foreground">
+                {(!isVideoReady || isValidating) && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
                     <div className="text-center">
-                      <Camera className="w-12 h-12 mx-auto mb-2 opacity-50 animate-pulse" />
-                      <p>Initializing camera...</p>
-                      <p className="text-sm opacity-75 mt-1">Please allow camera access</p>
+                      <Loader2 className="w-10 h-10 mx-auto mb-2 animate-spin" />
+                      <p>{isValidating ? 'Validating photo…' : 'Initializing camera...'}</p>
+                      {!isValidating && (
+                        <p className="text-sm opacity-75 mt-1">Please allow camera access</p>
+                      )}
                     </div>
                   </div>
                 )}

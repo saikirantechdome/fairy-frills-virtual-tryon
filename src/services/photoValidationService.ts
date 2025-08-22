@@ -71,17 +71,23 @@ export class PhotoValidationService {
       });
 
       if (!response.ok) {
-        throw new Error(`Vision API request failed: ${response.status}`);
+        let details = '';
+        try {
+          const errJson = await response.json();
+          details = errJson?.error?.message || JSON.stringify(errJson);
+        } catch (_) {}
+        throw new Error(`Vision API request failed: ${response.status} ${details}`);
       }
 
       const result: VisionAPIResponse = await response.json();
+      console.debug('Vision API result:', result);
       return this.analyzeResponse(result);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Photo validation failed:', error);
       return {
         isValid: false,
-        reason: 'Failed to validate photo. Please try again.'
+        reason: error?.message || 'Failed to validate photo. Please try again.'
       };
     }
   }
@@ -125,16 +131,19 @@ export class PhotoValidationService {
       }
     }
 
-    // Analyze faces - should have exactly one face
+    // Analyze faces - should have exactly one face and be roughly front-facing
     const faces = analysis.faceAnnotations || [];
-    if (faces.length === 0) {
+    if (faces.length !== 1) {
       return {
         isValid: false,
         reason: 'Please capture a baby photo with dress for try-on.'
       };
     }
-    
-    if (faces.length > 1) {
+
+    const face = faces[0];
+    // Front-facing heuristic using angles (tolerant thresholds)
+    const isFrontFacing = Math.abs(face.panAngle || 0) <= 35 && Math.abs(face.tiltAngle || 0) <= 25 && Math.abs(face.rollAngle || 0) <= 35;
+    if (!isFrontFacing) {
       return {
         isValid: false,
         reason: 'Please capture a baby photo with dress for try-on.'
@@ -160,9 +169,9 @@ export class PhotoValidationService {
       };
     }
 
-    // Check for dress/clothing
+    // Check for dress/clothing (must include dress or generic clothing)
     const clothingIndicators = [
-      'dress', 'clothing', 'apparel', 'garment', 'outfit', 'costume', 'textile', 'fashion'
+      'dress', 'clothing', 'apparel', 'garment', 'outfit'
     ];
     const hasClothingIndicator = clothingIndicators.some(indicator => 
       labelDescriptions.some(label => label.includes(indicator))
@@ -175,17 +184,16 @@ export class PhotoValidationService {
       };
     }
 
-    // Check for unwanted objects/animals
+    // Check for unwanted objects/animals (background items allowed)
     const unwantedIndicators = [
-      'dog', 'cat', 'pet', 'animal', 'toy', 'doll', 'adult', 'man', 'woman', 
-      'motorcycle', 'car', 'vehicle', 'furniture', 'object', 'tool'
+      'dog', 'cat', 'pet', 'animal', 'toy', 'doll', 'adult', 'man', 'woman'
     ];
     
-    const hasUnwantedElements = unwantedIndicators.some(unwanted => 
+    const hasCriticalUnwanted = unwantedIndicators.some(unwanted => 
       labelDescriptions.some(label => label.includes(unwanted))
     );
 
-    if (hasUnwantedElements) {
+    if (hasCriticalUnwanted) {
       return {
         isValid: false,
         reason: 'Please capture a baby photo with dress for try-on.'
