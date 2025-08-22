@@ -37,7 +37,7 @@ interface VisionAPIResponse {
 }
 
 export class PhotoValidationService {
-  private static readonly API_KEY = 'AIzaSyClIhXb3fSnPfWjpYaN65kMxuhPbgHGN6E';
+  private static readonly API_KEY = 'AIzaSyAJ4wKKnNdE9XK7zdiaYAt9S3GwNpzFzgE';
   private static readonly API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${PhotoValidationService.API_KEY}`;
 
   static async validatePhoto(imageFile: File): Promise<ValidationResult> {
