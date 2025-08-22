@@ -255,8 +255,23 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
               type: 'image/jpeg' 
             });
             
+            // Show validation loading
+            toast.loading('Validating photo...', { duration: 0 });
+            
+            // Validate the photo using Google Cloud Vision API
+            const { PhotoValidationService } = await import('../services/photoValidationService');
+            const validation = await PhotoValidationService.validatePhoto(file);
+            
+            // Dismiss loading toast
+            toast.dismiss();
+            
+            if (!validation.isValid) {
+              toast.error(validation.reason || 'Please capture a baby photo with dress for try-on.');
+              return; // Don't proceed if validation fails
+            }
+            
             onCapture(file);
-            toast.success('Photo ready for processing!');
+            toast.success('Photo validated and ready for processing!');
             resolve(void 0);
           }
         }, 'image/jpeg', 0.9);
@@ -447,7 +462,7 @@ export const CameraCapture = ({ onCapture, onCancel, className }: CameraCaptureP
                   className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Check className="h-4 w-4" />
-                  {isProcessing ? 'Processing...' : 'Use Photo'}
+                  {isProcessing ? 'Validating...' : 'Use Photo'}
                 </Button>
                 
                 <Button

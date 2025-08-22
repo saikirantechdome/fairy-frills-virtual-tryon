@@ -240,7 +240,7 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
   }, [cameraStream]);
 
   // Capture image from video
-  const captureImage = useCallback(() => {
+  const captureImage = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) {
       console.error('Video or canvas ref not available');
       return;
@@ -265,28 +265,58 @@ export const CameraUpload: React.FC<CameraUploadProps> = ({
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Convert canvas to blob
-    canvas.toBlob((blob) => {
+    canvas.toBlob(async (blob) => {
       if (blob) {
         const file = new File([blob], `camera-capture-${Date.now()}.jpg`, {
           type: 'image/jpeg',
         });
 
-        // Create preview URL
-        const imageUrl = URL.createObjectURL(blob);
-        setCapturedImage(imageUrl);
-        setUploadState('image-captured');
-
-        // Stop camera after capture but keep captured state
-        stopCamera(true);
-
-        // Call callback with captured file
-        onImageCapture?.(file);
-
-        console.log('Photo captured successfully');
+        // Show validation loading
         toast({
-          title: "Photo captured!",
-          description: "Your photo has been captured successfully",
+          title: "Validating photo...",
+          description: "Please wait while we validate your photo",
         });
+
+        try {
+          // Validate the photo using Google Cloud Vision API
+          const { PhotoValidationService } = await import('../services/photoValidationService');
+          const validation = await PhotoValidationService.validatePhoto(file);
+          
+          if (!validation.isValid) {
+            toast({
+              title: "Validation failed",
+              description: validation.reason || 'Please capture a baby photo with dress for try-on.',
+              variant: "destructive",
+            });
+            
+            // Show retake option by keeping camera active
+            return;
+          }
+
+          // Create preview URL
+          const imageUrl = URL.createObjectURL(blob);
+          setCapturedImage(imageUrl);
+          setUploadState('image-captured');
+
+          // Stop camera after capture but keep captured state
+          stopCamera(true);
+
+          // Call callback with captured file
+          onImageCapture?.(file);
+
+          console.log('Photo captured and validated successfully');
+          toast({
+            title: "Photo validated!",
+            description: "Your photo has been validated and is ready for try-on",
+          });
+        } catch (error) {
+          console.error('Validation error:', error);
+          toast({
+            title: "Validation error",
+            description: "Failed to validate photo. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     }, 'image/jpeg', 0.9);
   }, [onImageCapture, stopCamera]);
